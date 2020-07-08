@@ -1,3 +1,9 @@
 */codenation/*
 
 */venv/*
+
+*/__pychache__/*
+*.xml
+*/stdout.txt
+*/.idea/
+*/.pytest_cache/
