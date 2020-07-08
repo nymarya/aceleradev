@@ -3,7 +3,7 @@
 */venv/*
 
 */__pychache__/*
-*.xml
+*/outuput.xml
 */stdout.txt
 */.idea/
 */.pytest_cache/
