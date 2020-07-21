@@ -11,7 +11,7 @@
 
 # ## _Setup_ geral
 
-# In[41]:
+# In[2]:
 
 
 import pandas as pd
@@ -21,7 +21,7 @@ import scipy.stats as sct
 import seaborn as sns
 
 
-# In[42]:
+# In[3]:
 
 
 # %matplotlib inline
@@ -34,13 +34,13 @@ figsize(12, 8)
 sns.set()
 
 
-# In[43]:
+# In[4]:
 
 
 athletes = pd.read_csv("athletes.csv")
 
 
-# In[44]:
+# In[5]:
 
 
 def get_sample(df, col_name, n=100, seed=42):
@@ -76,7 +76,7 @@ def get_sample(df, col_name, n=100, seed=42):
 
 # ## Inicia sua análise a partir daqui
 
-# In[45]:
+# In[6]:
 
 
 # Sua análise começa aqui.
@@ -86,7 +86,7 @@ def get_sample(df, col_name, n=100, seed=42):
 # 
 # Considerando uma amostra de tamanho 3000 da coluna `height` obtida com a função `get_sample()`, execute o teste de normalidade de Shapiro-Wilk com a função `scipy.stats.shapiro()`. Podemos afirmar que as alturas são normalmente distribuídas com base nesse teste (ao nível de significância de 5%)? Responda com um boolean (`True` ou `False`).
 
-# In[46]:
+# In[7]:
 
 
 def q1():
@@ -107,7 +107,7 @@ q1()
 # * Plote o qq-plot para essa variável e a analise.
 # * Existe algum nível de significância razoável que nos dê outro resultado no teste? (Não faça isso na prática. Isso é chamado _p-value hacking_, e não é legal).
 
-# In[47]:
+# In[8]:
 
 
 athletes.height.plot(kind='hist', bins=25)
@@ -115,7 +115,7 @@ athletes.height.plot(kind='hist', bins=25)
 
 # O gráfico mostra uma distribuição semelhante a uma distribuição normal
 
-# In[48]:
+# In[9]:
 
 
 sct.probplot(athletes.height, dist="norm", plot=plt)
@@ -128,7 +128,7 @@ sct.probplot(athletes.height, dist="norm", plot=plt)
 # 
 # Repita o mesmo procedimento acima, mas agora utilizando o teste de normalidade de Jarque-Bera através da função `scipy.stats.jarque_bera()`. Agora podemos afirmar que as alturas são normalmente distribuídas (ao nível de significância de 5%)? Responda com um boolean (`True` ou `False`).
 
-# In[49]:
+# In[19]:
 
 
 def q2():
@@ -138,7 +138,7 @@ def q2():
 
     # A hipótese não é rejeitada (ie, a amostra pode ter sido
     # obtida de uma distribuição normal) se p > 0.05
-    return bool(p > 0.05)
+    return float(p) > 0.05
 
 q2()
 
@@ -151,7 +151,7 @@ q2()
 # 
 # Considerando agora uma amostra de tamanho 3000 da coluna `weight` obtida com a função `get_sample()`. Faça o teste de normalidade de D'Agostino-Pearson utilizando a função `scipy.stats.normaltest()`. Podemos afirmar que os pesos vêm de uma distribuição normal ao nível de significância de 5%? Responda com um boolean (`True` ou `False`).
 
-# In[50]:
+# In[11]:
 
 
 def q3():
@@ -161,7 +161,7 @@ def q3():
 
     # A hipótese não é rejeitada (ie, a amostra pode ter sido
     # obtida de uma distribuição normal) se p > 0.05
-    return bool(p > 0.05)
+    return float(p) > 0.05
 
 q3()
 
@@ -171,13 +171,13 @@ q3()
 # * Plote o histograma dessa variável (com, por exemplo, `bins=25`). A forma do gráfico e o resultado do teste são condizentes? Por que?
 # * Um _box plot_ também poderia ajudar a entender a resposta.
 
-# In[51]:
+# In[12]:
 
 
 athletes.weight.plot(kind='hist', bins=25)
 
 
-# In[52]:
+# In[13]:
 
 
 athletes.weight.plot(kind='box')
@@ -190,7 +190,7 @@ athletes.weight.plot(kind='box')
 # 
 # Realize uma transformação logarítmica em na amostra de `weight` da questão 3 e repita o mesmo procedimento. Podemos afirmar a normalidade da variável transformada ao nível de significância de 5%? Responda com um boolean (`True` ou `False`).
 
-# In[53]:
+# In[14]:
 
 
 def q4():
@@ -201,7 +201,7 @@ def q4():
 
     # A hipótese não é rejeitada (ie, a amostra pode ter sido
     # obtida de uma distribuição normal) se p > 0.05
-    return bool(p > 0.05)
+    return float(p) > 0.05
 
 q4()
 
@@ -217,14 +217,17 @@ q4()
 # 
 # Obtenha todos atletas brasileiros, norte-americanos e canadenses em `DataFrame`s chamados `bra`, `usa` e `can`,respectivamente. Realize um teste de hipóteses para comparação das médias das alturas (`height`) para amostras independentes e variâncias diferentes com a função `scipy.stats.ttest_ind()` entre `bra` e `usa`. Podemos afirmar que as médias são estatisticamente iguais? Responda com um boolean (`True` ou `False`).
 
-# In[68]:
+# In[15]:
 
+
+# Recupera amostras
+
+bra_heights = athletes.query('nationality == "BRA"').height
+usa_heights = athletes.query('nationality == "USA"').height
+can_heights = athletes.query('nationality == "CAN"').height
 
 def q5():
     # Retorne aqui o resultado da questão 5.
-    # Recupera amostras
-    bra_heights = athletes.query('nationality == "BRA"').height
-    usa_heights = athletes.query('nationality == "USA"').height
 
     equal_var = len(bra_heights) == len(usa_heights)
     # Realiza teste
@@ -233,7 +236,8 @@ def q5():
 
     # A hipótese não é rejeitada (ie, a amostra pode ter sido
     # obtida de uma distribuição normal) se p > 0.05
-    return bool(p > 0.05)
+    return float(p) > 0.05
+
 
 q5()
 
@@ -242,14 +246,11 @@ q5()
 # 
 # Repita o procedimento da questão 5, mas agora entre as alturas de `bra` e `can`. Podemos afimar agora que as médias são estatisticamente iguais? Reponda com um boolean (`True` ou `False`).
 
-# In[69]:
+# In[16]:
 
 
 def q6():
     # Retorne aqui o resultado da questão 6.
-    # Recupera amostras
-    bra_heights = athletes.query('nationality == "BRA"').height
-    can_heights = athletes.query('nationality == "CAN"').height
 
     equal_var = len(bra_heights) == len(can_heights)
     # Realiza teste
@@ -258,7 +259,8 @@ def q6():
 
     # A hipótese é rejeitada (ie, as médias não não iguais) se
     # p < 0.05
-    return bool(p > 0.05)
+    return float(p) > 0.05
+
 
 q6()
 
@@ -267,24 +269,19 @@ q6()
 # 
 # Repita o procedimento da questão 6, mas agora entre as alturas de `usa` e `can`. Qual o valor do p-valor retornado? Responda como um único escalar arredondado para oito casas decimais.
 
-# In[70]:
+# In[17]:
 
 
 def q7():
     # Retorne aqui o resultado da questão 7.
-    # Recupera amostras
-    usa_heights = athletes.query('nationality == "USA"').height
-    can_heights = athletes.query('nationality == "CAN"').height
 
     equal_var = len(usa_heights) == len(can_heights)
     # Realiza teste
     stats, p= sct.ttest_ind(usa_heights, can_heights, equal_var=equal_var,
                             nan_policy='omit')
 
-
-    # A hipótese não é rejeitada (ie, a amostra pode ter sido
-    # obtida de uma distribuição normal) se p > 0.05
     return float(round(p, 8))
+
 
 q7()
 

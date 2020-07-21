@@ -14,7 +14,7 @@
 
 # ## _Setup_ geral
 
-# In[38]:
+# In[2]:
 
 
 import pandas as pd
@@ -25,7 +25,7 @@ import seaborn as sns
 from statsmodels.distributions.empirical_distribution import ECDF
 
 
-# In[2]:
+# In[3]:
 
 
 # %matplotlib inline
@@ -42,7 +42,7 @@ sns.set()
 
 # ### _Setup_ da parte 1
 
-# In[3]:
+# In[4]:
 
 
 np.random.seed(42)
@@ -53,7 +53,7 @@ dataframe = pd.DataFrame({"normal": sct.norm.rvs(20, 4, size=10000),
 
 # ## Inicie sua análise a partir da parte 1 a partir daqui
 
-# In[4]:
+# In[5]:
 
 
 # Sua análise da parte 1 começa aqui.
@@ -66,7 +66,7 @@ dataframe.describe()
 # 
 # Em outra palavras, sejam `q1_norm`, `q2_norm` e `q3_norm` os quantis da variável `normal` e `q1_binom`, `q2_binom` e `q3_binom` os quantis da variável `binom`, qual a diferença `(q1_norm - q1 binom, q2_norm - q2_binom, q3_norm - q3_binom)`?
 
-# In[52]:
+# In[6]:
 
 
 def q1():
@@ -99,7 +99,7 @@ q1()
 # 
 # Considere o intervalo $[\bar{x} - s, \bar{x} + s]$, onde $\bar{x}$ é a média amostral e $s$ é o desvio padrão. Qual a probabilidade nesse intervalo, calculada pela função de distribuição acumulada empírica (CDF empírica) da variável `normal`? Responda como uma único escalar arredondado para três casas decimais.
 
-# In[6]:
+# In[7]:
 
 
 def q2():
@@ -120,7 +120,7 @@ q2()
 # * Esse valor se aproxima do esperado teórico?
 # * Experimente também para os intervalos $[\bar{x} - 2s, \bar{x} + 2s]$ e $[\bar{x} - 3s, \bar{x} + 3s]$.
 
-# In[7]:
+# In[8]:
 
 
 # Experimentando novos intervalos
@@ -140,7 +140,7 @@ print( float(round(ecdf(x+3*s) - ecdf(x-3*s), 3)))
 # 
 # Em outras palavras, sejam `m_binom` e `v_binom` a média e a variância da variável `binomial`, e `m_norm` e `v_norm` a média e a variância da variável `normal`. Quais as diferenças `(m_binom - m_norm, v_binom - v_norm)`?
 
-# In[8]:
+# In[9]:
 
 
 def q3():
@@ -166,7 +166,7 @@ q3()
 
 # ### _Setup_ da parte 2
 
-# In[9]:
+# In[10]:
 
 
 stars = pd.read_csv("pulsar_stars.csv")
@@ -183,7 +183,7 @@ stars.loc[:, "target"] = stars.target.astype(bool)
 
 # ## Inicie sua análise da parte 2 a partir daqui
 
-# In[10]:
+# In[11]:
 
 
 # Sua análise da parte 2 começa aqui.
@@ -204,7 +204,7 @@ stars.info()
 # 
 # Quais as probabilidade associadas a esses quantis utilizando a CDF empírica da variável `false_pulsar_mean_profile_standardized`? Responda como uma tupla de três elementos arredondados para três casas decimais.
 
-# In[11]:
+# In[12]:
 
 
 # Filtra estrelas que são um pulsar
@@ -243,19 +243,14 @@ q4()
 # 
 # Qual a diferença entre os quantis Q1, Q2 e Q3 de `false_pulsar_mean_profile_standardized` e os mesmos quantis teóricos de uma distribuição normal de média 0 e variância 1? Responda como uma tupla de três elementos arredondados para três casas decimais.
 
-# In[33]:
+# In[18]:
 
 
 def q5():
-    q1 = false_pulsar_mean_profile_standardized.quantile(0.25)
-    q2 = false_pulsar_mean_profile_standardized.quantile(0.5)
-    q3 = false_pulsar_mean_profile_standardized.quantile(0.75)
+    quantis = false_pulsar_mean_profile_standardized.quantile((0.25,0.5,0.75))
+    tqs = sct.norm.ppf([0.25, 0.5, 0.75])
 
-    tq1 = sct.norm.ppf(0.25)
-    tq2 = sct.norm.ppf(0.5)
-    tq3 = sct.norm.ppf(0.75)
-    return round(q1 - tq1,3), round(q2 - tq2, 3),           round(q3 - tq3, 3)
-
+    return tuple( i for i in (quantis- tqs).round(3))
 
 q5()
 
