@@ -9,7 +9,7 @@ class Regression:
     def __init__(self):
         self.model = None
 
-    def train(self, data: pd.Dataframe, y):
+    def train(self, data: pd.DataFrame, y):
         """ Train model.
 
             Attributes
