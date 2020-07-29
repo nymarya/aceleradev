@@ -18,4 +18,4 @@ codenation/lib/python3.7/site-packages/ipywidgets/widgets/widget_selection.py:9
 
 -- Docs: https://docs.pytest.org/en/latest/warnings.html
 ----- generated xml file: /home/mayra/codenation/data-science-1/output.xml -----
-==================== 5 passed, 2 warnings in 12.52 seconds =====================
+===================== 5 passed, 2 warnings in 2.48 seconds =====================

@@ -1,8 +1,10 @@
 import pandas as pd
 from sklearn.decomposition import PCA, TruncatedSVD
+from sklearn.feature_selection import SelectKBest, RFE, chi2
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, \
     FunctionTransformer
-from sklearn.pipeline import make_pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import FeatureUnion, Pipeline
 import numpy as np
@@ -40,7 +42,7 @@ class Preprocessing:
             Transformed data
         """
         if training:
-            y = df[target].fillna(-1)
+            y = df[target].fillna(0)
             df.drop(columns=[target], inplace=True)
 
         print('Droping columns with missing values')
@@ -80,7 +82,7 @@ class Preprocessing:
                     ]))
                 ]
             )),
-            ('red', TruncatedSVD())
+            ('red', TruncatedSVD(n_components=100))
         ])
 
         print('Transforming')

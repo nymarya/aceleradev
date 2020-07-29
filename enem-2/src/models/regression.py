@@ -1,7 +1,14 @@
+from sklearn.decomposition import TruncatedSVD
+from sklearn.feature_selection import RFE, SelectKBest, chi2
 from sklearn.linear_model import LinearRegression, Ridge
 import pickle
 from datetime import datetime
 import pandas as pd
+from numpy import arange
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import NeighborhoodComponentsAnalysis
+from sklearn.pipeline import Pipeline
+from sklearn.svm import SVR
 
 
 class Regression:
@@ -19,14 +26,43 @@ class Regression:
             y: pd.Series
                 Target column
         """
-        reg = LinearRegression()
-        reg.fit(data, y)
+
+        pl = Pipeline([
+            # the reduce_dim stage is populated by the param_grid
+            ('red', 'passthrough'),
+            ('classify', LinearRegression())
+        ])
+
+        n_features_options = [10, 20, 30, 40]
+        estimator = SVR(kernel="linear")
+
+        param_grid = [
+            {
+                'red': [TruncatedSVD()],
+                'red__n_components': n_features_options
+            },
+            {
+                'red': [RFE(estimator, step=10, verbose=1)],
+                'red__n_features_to_select': n_features_options
+            },
+            {
+                'red': [SelectKBest(chi2)],
+                'red__k': n_features_options
+            },
+        ]
+
+        grid = GridSearchCV(pl, n_jobs=1, param_grid=param_grid, verbose=10)
+        grid.fit(data, y)
+
+        # Print best estimator
+        print("Best estimator is:")
+        print(grid.best_estimator_)
 
         # Serialize model using pickle
         date = datetime.now().strftime("%Y%m%d_%H%M")
         filename = 'src/models/reg_{}.pickle'.format(date)
         with open(filename, 'wb') as f:
-            pickle.dump(reg, f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(grid, f, pickle.HIGHEST_PROTOCOL)
             print("Model save at: " + filename)
             self.model = filename
 
