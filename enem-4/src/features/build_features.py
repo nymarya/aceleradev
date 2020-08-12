@@ -1,16 +1,15 @@
 import pandas as pd
+from imblearn.over_sampling import SMOTE
 from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.feature_selection import SelectKBest, RFE, chi2, f_classif
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, \
-    FunctionTransformer, OrdinalEncoder, Normalizer, LabelEncoder
+    FunctionTransformer, OrdinalEncoder, Normalizer, LabelEncoder, RobustScaler
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import FeatureUnion, Pipeline
 import numpy as np
-import pickle
-
-from sklearn.svm import SVR, SVC
+import category_encoders as ce
 
 
 class Preprocessing:
@@ -45,9 +44,9 @@ class Preprocessing:
         if training:
             df = self.basic_cleaning(df)
             cols = self.filter_correlation(df, target)
-            categorical = df.select_dtypes(include='object').columns.tolist()
-            print(categorical)
-            df = df.loc[:, cols + categorical]
+            self.categorical = df.select_dtypes(include='object').columns.tolist()
+            print(self.categorical)
+            df = df.loc[:, cols + self.categorical]
             y = df[target].fillna(-1)
             df.drop(columns=[target], inplace=True)
 
@@ -55,15 +54,13 @@ class Preprocessing:
 
         # Preprocess the text data: get_text_data
         get_text_data = FunctionTransformer(
-            lambda x: x.select_dtypes(include='object').fillna('N/A').values,
+            lambda x: x.select_dtypes(include='object').values,
             validate=False)
 
         # Preprocess the numeric data
         get_numeric_data = FunctionTransformer(
-            lambda x: x.select_dtypes(include='number').fillna(-1).values,
+            lambda x: x.select_dtypes(include='number').values,
             validate=False)
-
-        estimator = SVC(kernel='linear', C=1)
 
         print('Transforming')
         # Build pipeline
@@ -72,15 +69,15 @@ class Preprocessing:
                 transformer_list=[
                     ('numeric_features', Pipeline([
                         ('selector', get_numeric_data),
-                        # ('imp', SimpleImputer(strategy='constant',
-                        #                       fill_value=-1)),
-                        ('scaler', Normalizer())
+                        ('imp', SimpleImputer(strategy='constant',
+                                              fill_value=-1)),
+                        ('scaler', RobustScaler())
                     ])),
                     ('text_features', Pipeline([
                         ('selector', get_text_data),
-                        # ('imp', SimpleImputer(strategy='constant',
-                        #                       fill_value='N/A')),
-                        ('enc', OrdinalEncoder())
+                        ('imp', SimpleImputer(strategy='constant',
+                                              fill_value='N/A')),
+                        ('enc', OneHotEncoder())
                     ]))
                 ]
             )),
@@ -93,6 +90,9 @@ class Preprocessing:
             self.pl = pl
             new_data = self.pl.fit_transform(df, y)
 
+            # Apply SMOTE to balance classes
+            # smt = SMOTE()
+            # return smt.fit_sample(new_data, y)
             return new_data, y
         else:
             print(df.shape)
@@ -121,6 +121,18 @@ class Preprocessing:
         return df
 
     def filter_correlation(self, df: pd.DataFrame, target: str):
+        """ Filter columns that have a reasonable correlation with the target.
+            Attributes
+            ---------
+            df: pd.DataFrame
+                Dataframe containing data
+            target: str
+                Target column
+
+            Return
+            ------
+            Column
+        """
         corr = df.corr().loc[:, target]
 
         return corr[corr < -0.2].index.tolist() + corr[corr > 0.5].index.tolist()
