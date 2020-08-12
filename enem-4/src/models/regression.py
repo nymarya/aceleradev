@@ -30,32 +30,9 @@ class Regression:
         pl = Pipeline([
             # the reduce_dim stage is populated by the param_grid
             # ('red', SelectKBest(f_classif, k=5)),
-            ('classify', LogisticRegression(solver='liblinear'))
-        ])
-
-        n_features_options = arange(10, 35, 5)
-
-        # param_grid = [
-        #     {
-        #         'red': [TruncatedSVD()],
-        #         'red__n_components': n_features_options
-        #     },
-        #     {
-        #         'red': [RFE(estimator, step=1)],
-        #         'red__n_features_to_select': n_features_options
-        #     },
-        #     {
-        #         'red': [SelectKBest(f_classif)],
-        #         'red__k': n_features_options
-        #     },
-        # ]
-
-        # grid = GridSearchCV(pl, n_jobs=1, verbose=10)
+            ('classify', LogisticRegression(solver='liblinear',
+                                            intercept_scaling=0.01))])
         pl.fit(data, y)
-
-        # Print best estimator
-        # print("Best estimator is:")
-        # print(grid.best_estimator_)
 
         # Serialize model using pickle
         date = datetime.now().strftime("%Y%m%d_%H%M")
