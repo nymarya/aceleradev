@@ -1,14 +1,8 @@
-from sklearn.decomposition import TruncatedSVD
-from sklearn.feature_selection import RFE, SelectKBest, chi2, f_classif
-from sklearn.linear_model import LinearRegression, Ridge, LogisticRegression
 import pickle
 from datetime import datetime
+
 import pandas as pd
-from numpy import arange
-from sklearn.model_selection import GridSearchCV
-from sklearn.neighbors import NeighborhoodComponentsAnalysis
-from sklearn.pipeline import Pipeline
-from sklearn.svm import SVR
+from sklearn.linear_model import LogisticRegression
 
 
 class Regression:
@@ -26,19 +20,15 @@ class Regression:
             y: pd.Series
                 Target column
         """
-        estimator = LinearRegression()
-        pl = Pipeline([
-            # the reduce_dim stage is populated by the param_grid
-            # ('red', SelectKBest(f_classif, k=5)),
-            ('classify', LogisticRegression(solver='liblinear',
-                                            intercept_scaling=0.01))])
-        pl.fit(data, y)
+
+        lr = LogisticRegression(solver='liblinear')
+        lr.fit(data, y)
 
         # Serialize model using pickle
         date = datetime.now().strftime("%Y%m%d_%H%M")
         filename = 'src/models/reg_{}.pickle'.format(date)
         with open(filename, 'wb') as f:
-            pickle.dump(pl, f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(lr, f, pickle.HIGHEST_PROTOCOL)
             print("Model save at: " + filename)
             self.model = filename
 
