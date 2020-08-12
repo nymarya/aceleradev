@@ -1,15 +1,10 @@
+import numpy as np
 import pandas as pd
-from imblearn.over_sampling import SMOTE
-from sklearn.decomposition import PCA, TruncatedSVD
-from sklearn.feature_selection import SelectKBest, RFE, chi2, f_classif
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, \
-    FunctionTransformer, OrdinalEncoder, Normalizer, LabelEncoder, RobustScaler
+from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import FeatureUnion, Pipeline
-import numpy as np
-import category_encoders as ce
+from sklearn.preprocessing import OneHotEncoder, \
+    FunctionTransformer, RobustScaler
 
 
 class Preprocessing:
@@ -21,8 +16,8 @@ class Preprocessing:
                            'NO_MUNICIPIO_RESIDENCIA', 'NO_MUNICIPIO_NASCIMENTO']
 
         self.pl = None
-        self.cols = None
-        self.features_selected = None
+        self.features = None
+        self.numeric_features = None
 
     def process(self, df: pd.DataFrame, target: str = None, training: bool = True):
         """ Process data.
@@ -43,16 +38,16 @@ class Preprocessing:
 
         if training:
             df = self.basic_cleaning(df)
-            cols = self.filter_correlation(df, target)
-            self.categorical = df.select_dtypes(include='object').columns.tolist()
-            print(self.categorical)
-            df = df.loc[:, cols + self.categorical]
+            self.filter_correlation(df, target)
+            categorical = df.select_dtypes(include='object').columns.tolist()
+            # Remove ignored columns and then remove target
+            df = df.loc[:, self.numeric_features + categorical]
             y = df[target].fillna(-1)
             df.drop(columns=[target], inplace=True)
 
-            self.cols = df.columns
+            self.features = df.columns
 
-        # Preprocess the text data: get_text_data
+        # Preprocess the text data
         get_text_data = FunctionTransformer(
             lambda x: x.select_dtypes(include='object').values,
             validate=False)
@@ -84,19 +79,14 @@ class Preprocessing:
             ('red', SelectKBest(f_classif, k=10))
         ])
 
-        print(df.columns)
         if training:
-            print(df.shape)
+            # Save pipeline ans transform
             self.pl = pl
             new_data = self.pl.fit_transform(df, y)
 
-            # Apply SMOTE to balance classes
-            # smt = SMOTE()
-            # return smt.fit_sample(new_data, y)
             return new_data, y
         else:
-            print(df.shape)
-            return self.pl.transform(df[self.cols])
+            return self.pl.transform(df[self.features])
 
     def basic_cleaning(self, df: pd.DataFrame):
         """ Basic pre-processing steps.
@@ -135,4 +125,8 @@ class Preprocessing:
         """
         corr = df.corr().loc[:, target]
 
-        return corr[corr < -0.2].index.tolist() + corr[corr > 0.5].index.tolist()
+        # Columns that have inverse correlation with target
+        cols = corr[corr < -0.2].index.tolist()
+        # Columns that have correlation with target
+        cols += corr[corr > 0.5].index.tolist()
+        self.numeric_features = cols
