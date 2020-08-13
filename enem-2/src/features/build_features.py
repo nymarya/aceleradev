@@ -1,14 +1,10 @@
+import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA, TruncatedSVD
-from sklearn.feature_selection import SelectKBest, RFE, chi2, f_classif
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import StandardScaler, OneHotEncoder, \
-    FunctionTransformer, OrdinalEncoder, Normalizer, RobustScaler
+from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import FeatureUnion, Pipeline
-import numpy as np
-from sklearn.svm import SVC, SVR
+from sklearn.preprocessing import OneHotEncoder, \
+    FunctionTransformer, RobustScaler
 
 
 class Preprocessing:

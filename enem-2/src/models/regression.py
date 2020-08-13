@@ -1,15 +1,8 @@
-from sklearn.decomposition import TruncatedSVD
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.feature_selection import RFE, SelectKBest, chi2, f_classif
-from sklearn.linear_model import LinearRegression, Ridge, TheilSenRegressor
 import pickle
 from datetime import datetime
+
 import pandas as pd
-from sklearn.model_selection import GridSearchCV
-from sklearn.neighbors import NeighborhoodComponentsAnalysis
-from sklearn.pipeline import Pipeline
-from sklearn.svm import SVR
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
 
 
 class Regression:
