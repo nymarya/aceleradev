@@ -4,7 +4,7 @@ from sklearn.feature_selection import SelectKBest, RFE, chi2
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler, OneHotEncoder, \
-    FunctionTransformer
+    FunctionTransformer, OrdinalEncoder, Normalizer
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import FeatureUnion, Pipeline
 import numpy as np
@@ -42,16 +42,10 @@ class Preprocessing:
             Transformed data
         """
         if training:
-            y = df[target].fillna(0)
+            y = df[target].fillna(-1)
             df.drop(columns=[target], inplace=True)
 
-        print('Droping columns with missing values')
-        df = df.loc[:, (df.isna().sum() / df.shape[0]) * 100 < 50]
-        print('Dropping columns with constant values')
-        df = df.loc[:, df.nunique() > 1]
-        print('Dropping columns correlated')
-        cols = df.columns[np.isin(df.columns, self.correlated)]
-        df.drop(columns=cols)
+        df = self.basic_cleaning(df)
 
         # Preprocess the text data: get_text_data
         get_text_data = FunctionTransformer(
@@ -63,26 +57,27 @@ class Preprocessing:
             lambda x: x.select_dtypes(include='number'),
             validate=False)
 
+        estimator=LinearRegression()
+
         # Build pipeline
         pl = Pipeline([
             ('union', FeatureUnion(
                 transformer_list=[
                     ('numeric_features', Pipeline([
                         ('selector', get_numeric_data),
-                        ('imp', SimpleImputer(strategy='constant', fill_value=-1)),
-                        ('scaler', StandardScaler())
+                        ('imp', SimpleImputer(strategy='constant',
+                                              fill_value=-1)),
+                        ('scaler', Normalizer())
                     ])),
                     ('text_features', Pipeline([
                         ('selector', get_text_data),
-                        ('imp',
-                         SimpleImputer(strategy='constant', fill_value='N/A',
-                                       missing_values=np.nan)),
-
-                        ('enc', OneHotEncoder(drop='first'))
+                        ('imp', SimpleImputer(strategy='constant',
+                                              fill_value='N/A')),
+                        ('enc', OneHotEncoder())
                     ]))
                 ]
-            )),
-            ('red', TruncatedSVD(n_components=100))
+            ))
+
         ])
 
         print('Transforming')
@@ -91,3 +86,27 @@ class Preprocessing:
             return new_data, y
         else:
             return pl.fit_transform(df)
+
+    def basic_cleaning(self, df: pd.DataFrame):
+        """ Basic pre-processing steps.
+            Attributes
+            ---------
+            df: pd.DataFrame
+                Dataframe containing data
+
+            Return
+            ------
+            Transformed data
+        """
+        print('Droping columns with missing values')
+        df = df.loc[:, (df.isna().sum() / df.shape[0]) * 100 < 50]
+        print('Dropping columns with constant values')
+        df = df.loc[:, df.nunique() > 1]
+        print('Dropping columns correlated')
+        cols = df.columns[np.isin(df.columns, self.correlated)]
+        df.drop(columns=cols)
+
+        return df
+
+    def remove_outlier(self, df: pd.DataFrame):
+        pass
