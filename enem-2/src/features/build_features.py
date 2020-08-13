@@ -77,7 +77,7 @@ class Preprocessing:
                     ]))
                 ]
             )),
-            ('red', SelectKBest(f_classif, k=10))
+            ('red', SelectKBest(f_classif, k=30))
         ])
 
         if training:
