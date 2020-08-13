@@ -1,4 +1,5 @@
 from sklearn.decomposition import TruncatedSVD
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.feature_selection import RFE, SelectKBest, chi2, f_classif
 from sklearn.linear_model import LinearRegression, Ridge, TheilSenRegressor
 import pickle
@@ -8,6 +9,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import NeighborhoodComponentsAnalysis
 from sklearn.pipeline import Pipeline
 from sklearn.svm import SVR
+from sklearn.tree import DecisionTreeRegressor
 
 
 class Regression:
@@ -26,7 +28,8 @@ class Regression:
                 Target column
         """
 
-        lr = LinearRegression()
+        lr = RandomForestRegressor(n_estimators=50, max_depth=4, min_samples_split=4,
+                                   max_features=0.5)
 
         lr.fit(data, y)
 
