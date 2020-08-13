@@ -11,7 +11,6 @@ test_df = pd.read_csv('test.csv')
 
 columns = list(test_df.columns)
 columns.append('NU_NOTA_MT')
-print(columns)
 
 features = Preprocessing()
 train_data, train_target = features.process(enem_df[columns],

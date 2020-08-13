@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder, \
 from sklearn.impute import SimpleImputer
 from sklearn.pipeline import FeatureUnion, Pipeline
 import numpy as np
+from sklearn.svm import SVC, SVR
 
 
 class Preprocessing:
@@ -39,10 +40,10 @@ class Preprocessing:
         """
         if training:
             df = self.basic_cleaning(df)
-            self.filter_correlation(df, target)
-            categorical = df.select_dtypes(include='object').columns.tolist()
-            # Remove ignored columns and then remove target
-            df = df.loc[:, self.numeric_features + categorical]
+            # self.filter_correlation(df, target)
+            # categorical = df.select_dtypes(include='object').columns.tolist()
+            # # Remove ignored columns and then remove target
+            # df = df.loc[:, self.numeric_features + categorical]
             y = df[target].fillna(-1)
             df.drop(columns=[target], inplace=True)
 
@@ -77,7 +78,7 @@ class Preprocessing:
                     ]))
                 ]
             )),
-            ('red', SelectKBest(f_classif, k=30))
+            ('red', SelectKBest(f_classif, k=50))
         ])
 
         if training:
