@@ -7,9 +7,15 @@ import pandas as pd
 import numpy as np
 
 enem_df = pd.read_csv('train.csv', index_col='Unnamed: 0')
+test_df = pd.read_csv('test.csv')
+
+columns = list(test_df.columns)
+columns.append('NU_NOTA_MT')
+print(columns)
 
 features = Preprocessing()
-train_data, train_target = features.process(enem_df, target='NU_NOTA_MT')
+train_data, train_target = features.process(enem_df[columns],
+                                            target='NU_NOTA_MT')
 print(train_data.shape)
 X_train, X_test, y_train, y_test = train_test_split(train_data, train_target,
                                                     test_size=0.4,
@@ -20,13 +26,6 @@ X_train, X_test, y_train, y_test = train_test_split(train_data, train_target,
 reg = Regression()
 reg.train(X_train, y_train)
 print(reg.score(X_test, y_test))
-
-# reg2 = Ridge()
-# parameters = {'solver': ['svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga'],
-#               'tol': np.arange(0.00001, 0.1, 0.02)}
-# clf = GridSearchCV(reg2, parameters)
-# clf.fit(X_train, y_train)
-# print(clf.best_score_)
 
 # Predict
 test_df = pd.read_csv('test.csv')

@@ -26,42 +26,16 @@ class Regression:
             y: pd.Series
                 Target column
         """
-        estimator = LinearRegression()
-        pl = Pipeline([
-            # the reduce_dim stage is populated by the param_grid
-            # ('red', SelectKBest(f_classif)),
-            ('classify', LinearRegression())
-        ])
 
-        n_features_options = arange(10, 35, 5)
+        lr = LinearRegression()
 
-        param_grid = [
-            {
-                'red': [TruncatedSVD()],
-                'red__n_components': n_features_options
-            },
-            {
-                'red': [RFE(estimator, step=1)],
-                'red__n_features_to_select': n_features_options
-            },
-            {
-                'red': [SelectKBest(f_classif)],
-                'red__k': n_features_options
-            },
-        ]
-
-        grid = GridSearchCV(pl, n_jobs=1, param_grid=param_grid, verbose=10)
-        pl.fit(data, y)
-
-        # Print best estimator
-        # print("Best estimator is:")
-        # print(grid.best_estimator_)
+        lr.fit(data, y)
 
         # Serialize model using pickle
         date = datetime.now().strftime("%Y%m%d_%H%M")
         filename = 'src/models/reg_{}.pickle'.format(date)
         with open(filename, 'wb') as f:
-            pickle.dump(pl, f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(lr, f, pickle.HIGHEST_PROTOCOL)
             print("Model save at: " + filename)
             self.model = filename
 
